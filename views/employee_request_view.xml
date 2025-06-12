@@ -23,7 +23,7 @@
                     <!--                    <button name="action_print_report" string="Print" type="object" class="btn-secondary"-->
                     <!--                            invisible="state != 'approved'"-->
                     <!--                            groups="sdm_employee_request_approval.group_employee_request_approver"/>-->
-<!--                    <button name="action_print_report" string="Print" type="object" class="btn-secondary"/>-->
+                    <!--                    <button name="action_print_report" string="Print" type="object" class="btn-secondary"/>-->
                     <button name="action_print_report" string="Print" type="object" class="btn-secondary"
                             invisible="state != 'submitted'"
                     />
@@ -49,7 +49,8 @@
                         <field name="request_type"/>
                         <field name="start_date" invisible="request_type != 'leave_request'"/>
                         <field name="end_date" invisible="request_type != 'leave_request'"/>
-
+                        <field name="resignation_date" invisible="request_type != 'relieving_letter'"/>
+                        <field name="last_working_day" invisible="request_type != 'relieving_letter'"/>
                         <field name="reason" placeholder="Enter the reason for request here..."/>
                         <field name="date_request" widget="daterange"/>
                         <field name="approved_by"

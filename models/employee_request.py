@@ -21,6 +21,7 @@ class EmployeeRequest(models.Model):
     REQUEST_TYPE_SELECTION = [
         ('experience_certificate', 'Experience Certificate'),
         ('leave_request', 'Leave Request'),
+        ('relieving_letter', 'Relieving Letter'),
     ]
 
     request_type = fields.Selection(
@@ -46,6 +47,8 @@ class EmployeeRequest(models.Model):
 
     date = fields.Date(string="Date", default=fields.Date.context_today, tracking=True)
 
+    joining_date = fields.Date(string="Joining Date", compute="_compute_joining_date")
+
     reason = fields.Char(string="Reason")
 
     total_experience = fields.Char(string="Total Experience", compute="_compute_total_experience")
@@ -53,6 +56,23 @@ class EmployeeRequest(models.Model):
     start_date = fields.Date(string="Start Date")
     end_date = fields.Date(string="End Date")
 
+    resignation_date = fields.Date(string="Resignation Date")
+    last_working_day = fields.Date(string="Last Working Day", compute="_compute_last_working_day")
+
+    def _compute_joining_date(self):
+        for rec in self:
+            resume_lines = self.env['hr.resume.line'].search(
+                [('employee_id', '=', rec.employee_id.id), ('date_start', '!=', False)],
+                order='date_start asc', limit=1
+            )
+            rec.joining_date = resume_lines.date_start if resume_lines else None
+
+    @api.onchange('resignation_date')
+    def _compute_last_working_day(self):
+        notice_period_days = 30  # Example: 30 days notice
+        for rec in self:
+            if rec.resignation_date:
+                rec.last_working_day = rec.resignation_date + relativedelta(days=notice_period_days)
 
     def _get_experience_details(self, employee):
         from dateutil.relativedelta import relativedelta
@@ -150,14 +170,9 @@ class EmployeeRequest(models.Model):
             return self.env.ref('sdm_employee_request_approval.report_experience_certificate').report_action(self)
         elif self.request_type == 'leave_request':
             return self.env.ref('sdm_employee_request_approval.report_leave_request').report_action(self)
+        elif self.request_type == 'relieving_letter':
+            return self.env.ref('sdm_employee_request_approval.report_relieving_letter').report_action(self)
 
-    # def action_print_report_response(self):
-    #     self.ensure_one()
-    #     if self.request_type == 'experience_certificate':
-    #         return self.env.ref('sdm_employee_request_approval.report_experience_certificate_response').report_action(
-    #             self)
-    #     elif self.request_type == 'leave_request':
-    #         return self.env.ref('sdm_employee_request_approval.report_Leave_request_response').report_action(self)
 
     def action_print_report_response(self):
         self.ensure_one()
@@ -168,6 +183,9 @@ class EmployeeRequest(models.Model):
                 return self.env.ref('sdm_employee_request_approval.report_leave_request_rejection').report_action(self)
             else:
                 return self.env.ref('sdm_employee_request_approval.report_Leave_request_response').report_action(self)
+        elif self.request_type == 'relieving_letter':
+            return self.env.ref('sdm_employee_request_approval.report_relieving_letter_response').report_action(self)
+
 
 
 class RequestLetter(models.Model):

@@ -35,6 +35,17 @@
         <field name="paperformat_id" ref="paperformat_employee_request"/>
     </record>
 
+    <!--report for Relieving Letter-->
+    <record id="report_relieving_letter" model="ir.actions.report">
+        <field name="name">Relieving Letter</field>
+        <field name="model">employee.request</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sdm_employee_request_approval.report_relieving_letter_template</field>
+        <field name="report_file">sdm_employee_request_approval.report_relieving_letter_template</field>
+        <field name="print_report_name">'Relieving Letter - %s' % (object.employee_id.name)</field>
+        <field name="paperformat_id" ref="paperformat_employee_request"/>
+    </record>
+
     <!-- Template: Experience Certificate -->
     <template id="report_experience_certificate_template">
         <t t-call="web.html_container">
@@ -342,5 +353,138 @@
             </t>
         </t>
     </template>
+
+<!--    Relieving Letter Template-->
+    <template id="report_relieving_letter_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <!-- Logo -->
+                    <div style="text-align: left; margin-bottom: 10px;">
+                        <img t-if="res_company.logo"
+                             t-att-src="'data:image/png;base64,%s' % res_company.logo.decode('utf-8')"
+                             style="width: 150px; height: auto;"/>
+                    </div>
+
+                    <!-- Company Info and Place/Date -->
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 14px;">
+
+                        <div style="text-align: left;">
+                            <strong>
+                                <t t-esc="res_company.name"/>
+                            </strong>
+                            <br/>
+                            Tel:
+                            <t t-esc="res_company.phone or 'N/A'"/>
+                            <br/>
+                            Email:
+                            <t t-esc="res_company.email or 'N/A'"/>
+                            <br/>
+                            Address:
+                            <t t-esc="res_company.street or ''"/>
+                            <t t-if="res_company.street2">,
+                                <t t-esc="res_company.street2"/>
+                            </t>
+                            <t t-if="res_company.city">,
+                                <t t-esc="res_company.city"/>
+                            </t>
+                            <t t-if="res_company.state_id.name">,
+                                <t t-esc="res_company.state_id.name"/>
+                            </t>
+                            <t t-if="res_company.zip">,
+                                <t t-esc="res_company.zip"/>
+                            </t>
+                            <t t-if="res_company.country_id.name">,
+                                <t t-esc="res_company.country_id.name"/>
+                            </t>
+                            .
+                        </div>
+
+                        <div style="text-align: right; font-size: 12px;">
+                            <strong>Place:</strong>
+                            <t t-esc="res_company.city or 'N/A'"/>,
+                            <br/>
+                            <strong>Date:</strong>
+                            <t t-esc="docs.date.strftime('%d %B %Y') if docs.date else ''"/>
+                        </div>
+                    </div>
+
+                    <hr style="margin-top: 10px; margin-bottom: 10px;"/>
+
+
+                    <!-- Title -->
+                    <h3 style="text-align: center; text-decoration: underline; margin-top: 10px;margin-bottom: 20px;">
+                        Leave
+                        Request
+                    </h3>
+
+
+                    <h5 style="margin-top: 50px;margin-bottom: 5px;">
+                        Request Number:
+                        <span style="font-weight: normal;">
+                            <t t-esc="docs.name"/>
+                        </span>
+                    </h5>
+
+                    <div style="text-align: center; text-decoration: underline; margin-top: 40px;margin-bottom: 50px;">
+                        Subject:
+                        <span style="font-weight: bold;">Relieving letter</span>
+                    </div>
+
+
+                    <!-- Letter Body -->
+                    <div style="font-size: 13px; line-height: 1.6;">
+                        Dear
+                        <strong>
+                            <t t-esc="docs.approved_by.name or 'Manager'"/>
+                        </strong>
+                        ,
+                        <br/>
+                        <br/>
+                        I am writing to formally request the issuance of my <strong>Relieving Letter</strong>. As per my
+                        resignation dated
+                        <strong>
+                            <t t-esc="docs.resignation_date or 'Resignation Date'"/>
+                        </strong>
+                        , and having completed my notice period, my last working day was
+                        <strong>
+                            <t t-esc="docs.last_working_day or 'Last Working Day'"/>
+                        </strong>
+                        at
+                        <strong>
+                            <t t-esc="res_company.name"/>
+                        </strong>
+                        .
+                        <br/>
+                        <br/>
+                        Kindly provide my official relieving letter confirming that I have been relieved of my duties
+                        from the organization.
+                        <br/>
+                        <br/>
+                        Thank you very much for your time and understanding. I look forward to your positive response.
+                        <br/>
+                        <br/>
+                        Yours sincerely,
+                        <br/>
+                        <strong>
+                            <t t-esc="docs.employee_id.name or 'Employee Name'"/>
+                        </strong>
+                        <br/>
+                        <span>
+                            <t t-esc="docs.employee_id.job_id.name or 'Designation'"/>
+                        </span>
+                        <br/>
+                        <span>
+                            <t t-esc="docs.employee_id.work_email or 'Email'"/>
+                        </span>
+                    </div>
+
+                    <hr style="margin-top: 30px; margin-bottom: 10px;"/>
+
+                </div>
+            </t>
+        </t>
+    </template>
+
 
 </odoo>
