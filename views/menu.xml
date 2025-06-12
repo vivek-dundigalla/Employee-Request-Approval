@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <menuitem id="menu_employee_request_root" name="Employee Requests" sequence="10" />
+
+    <menuitem id="menu_employee_request_main"
+              name="Requests"
+              parent="menu_employee_request_root"
+              action="action_employee_request"
+              sequence="1"/>
+
+        <menuitem id="menu_configuration"
+                name="Configuration"
+                parent="menu_employee_request_root"
+                sequence="2"/>
+
+<!--        <menuitem id="menu_request_letter"-->
+<!--                name="Request Type"-->
+<!--                parent="menu_configuration"-->
+<!--                action="action_request_letter"-->
+<!--                sequence="1"/>-->
+</odoo>

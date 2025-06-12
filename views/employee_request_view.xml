@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="view_employee_request_form" model="ir.ui.view">
+        <field name="name">employee.request.form</field>
+        <field name="model">employee.request</field>
+        <field name="arch" type="xml">
+            <form string="Employee Request">
+                <header>
+                    <button name="action_submit" string="Submit" type="object" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <!--                    <button name="action_send_email_hr" string="Send Mail" type="object"-->
+                    <!--                            class="oe_highlight"-->
+                    <!--                            groups="sdm_employee_request_approval.group_employee_request_approver"/>-->
+
+                    <!--                    <button name="action_send_email_hr" string="Send Email" class="btn-primary"-->
+                    <!--                            type="object" invisible="state != 'draft'" groups="not sdm_employee_request_approval.group_employee_request_approver"/>-->
+                    <button name="action_approve" string="Approve" type="object" class="btn-success"
+                            invisible="state != 'submitted'"
+                            groups="sdm_employee_request_approval.group_employee_request_approver"/>
+                    <button name="action_reject" string="Reject" type="object" class="btn-danger"
+                            invisible="state != 'submitted'"
+                            groups="sdm_employee_request_approval.group_employee_request_approver"/>
+                    <!--                    <button name="action_print_report" string="Print" type="object" class="btn-secondary"-->
+                    <!--                            invisible="state != 'approved'"-->
+                    <!--                            groups="sdm_employee_request_approval.group_employee_request_approver"/>-->
+<!--                    <button name="action_print_report" string="Print" type="object" class="btn-secondary"/>-->
+                    <button name="action_print_report" string="Print" type="object" class="btn-secondary"
+                            invisible="state != 'submitted'"
+                    />
+                    <field name="state" widget="statusbar" statusbar_visible="draft,submitted,approved,rejected"/>
+
+                    <button name="action_print_report_response" string="Print" type="object" class="btn-secondary"
+                            invisible="not (state == 'approved' or state == 'rejected')"
+                            groups="sdm_employee_request_approval.group_employee_request_approver"/>
+
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h3>
+                            <field name="name" placeholder="Request Sequence" readonly="1"/>
+                        </h3>
+                    </div>
+                    <group>
+                        <field name="req_title"/>
+                        <field name="employee_id"/>
+                        <field name="email"/>
+                        <field name="role"/>
+                        <!--                        <field name="request_type_id"/>-->
+                        <field name="request_type"/>
+                        <field name="start_date" invisible="request_type != 'leave_request'"/>
+                        <field name="end_date" invisible="request_type != 'leave_request'"/>
+
+                        <field name="reason" placeholder="Enter the reason for request here..."/>
+                        <field name="date_request" widget="daterange"/>
+                        <field name="approved_by"
+                               groups="sdm_employee_request_approval.group_employee_request_approver"/>
+                        <field name="approved_date"
+                               groups="sdm_employee_request_approval.group_employee_request_approver"/>
+                    </group>
+                    <!--                    <notebook>-->
+                    <!--                        <page name="description" string="Letter Content and Details">-->
+                    <!--                            <field name="rendered_letter"/>-->
+                    <!--                        </page>-->
+                    <!--                    </notebook>-->
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_employee_request_tree" model="ir.ui.view">
+        <field name="name">employee.request.tree</field>
+        <field name="model">employee.request</field>
+        <field name="arch" type="xml">
+            <list string="Employee Requests">
+                <field name="name"/>
+                <field name="req_title"/>
+                <field name="employee_id"/>
+                <field name="email"/>
+                <field name="role"/>
+                <!--                <field name="request_type_id"/>-->
+                <field name="request_type"/>
+                <field name="date_request"/>
+                <field name="state"/>
+            </list>
+        </field>
+    </record>
+
+    <!-- Kanban View -->
+    <record id="view_employee_request_kanban" model="ir.ui.view">
+        <field name="name">employee.request.kanban</field>
+        <field name="model">employee.request</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state">
+                <field name="name"/>
+                <field name="employee_id"/>
+                <field name="email"/>
+                <field name="role"/>
+                <field name="state"/>
+                <!--                <field name="request_type_id"/>-->
+                <field name="request_type"/>
+                <field name="date_request"/>
+                <field name="approved_by"/>
+                <field name="approved_date"/>
+
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+                            <div class="o_kanban_record_title">
+                                <strong>
+                                    <field name="name"/>
+                                </strong>
+                            </div>
+                            <div>
+                                <span>
+                                    <strong>Employee:</strong>
+                                    <field name="employee_id"/>
+                                </span>
+                                <br/>
+                                <!--                                <span>-->
+                                <!--                                    <strong>Type:</strong>-->
+                                <!--                                    <field name="request_type_id"/>-->
+                                <!--                                </span>-->
+                                <br/>
+                                <br/>
+                                <span>
+                                    <strong>Type:</strong>
+                                    <field name="request_type"/>
+                                </span>
+                                <br/>
+                                <span>
+                                    <strong>Date:</strong>
+                                    <field name="date_request"/>
+                                </span>
+                                <br/>
+                                <t t-if="record.approved_by.raw_value">
+                                    <span>
+                                        <strong>Approved By:</strong>
+                                        <field name="approved_by"/>
+                                    </span>
+                                </t>
+                                <br/>
+                                <t t-if="record.approved_date.raw_value">
+                                    <span>
+                                        <strong>Approved date:</strong>
+                                        <field name="approved_date"/>
+                                    </span>
+                                </t>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+
+    <!-- Action to open the model -->
+    <record id="action_employee_request" model="ir.actions.act_window">
+        <field name="name">Employee Requests</field>
+        <field name="res_model">employee.request</field>
+        <field name="view_mode">kanban,list,form</field>
+        <field name="help" type="html">
+            <p>Create and manage employee requests here.</p>
+        </field>
+    </record>
+
+
+    <record id="view_request_letter_form" model="ir.ui.view">
+        <field name="name">request.letter.form</field>
+        <field name="model">request.letter</field>
+        <field name="arch" type="xml">
+            <form string="Request Letter">
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="reason"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+    <record id="view_request_letter_tree" model="ir.ui.view">
+        <field name="name">request.letter.tree</field>
+        <field name="model">request.letter</field>
+        <field name="arch" type="xml">
+            <list string="Request Letters">
+                <field name="name"/>
+                <!--                <field name="reason"/>-->
+            </list>
+        </field>
+    </record>
+
+    <record id="action_request_letter" model="ir.actions.act_window">
+        <field name="name">Request Letters</field>
+        <field name="res_model">request.letter</field>
+        <field name="view_mode">list,form</field>
+        <field name="help" type="html">
+            <p>Manage request letters here.</p>
+        </field>
+    </record>
+
+
+</odoo>

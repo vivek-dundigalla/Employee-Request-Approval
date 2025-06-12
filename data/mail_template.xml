@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <!-- Email to HR when employee submits a request -->
+        <record id="template_notify_hr_request" model="mail.template">
+            <field name="name">Notify HR - Employee Request</field>
+            <field name="model_id" ref="model_employee_request"/>
+            <field name="subject">New Request from ${object.employee_id.name}</field>
+            <field name="email_from">${(object.employee_id.work_email or user.email) | safe}</field>
+            <field name="email_to">${','.join(hr_user.email for hr_user in object.get_hr_users())}</field>
+            <field name="body_html" type="html">
+                <![CDATA[
+                <p>Dear HR,</p>
+                <p>A new request has been submitted by <strong>${object.employee_id.name}</strong>.</p>
+                <p><strong>Type:</strong> ${object.request_type_id.name}</p>
+                <p><strong>Description:</strong> ${object.description or ''}</p>
+                <p><strong>Date:</strong> ${object.date_request}</p>
+                ]]>
+            </field>
+        </record>
+
+        <!-- Email to Employee when HR responds -->
+        <record id="template_notify_employee_response" model="mail.template">
+            <field name="name">Notify Employee - HR Response</field>
+            <field name="model_id" ref="model_employee_request"/>
+            <field name="subject">Your Request has been ${object.state.capitalize()}</field>
+            <field name="email_from">${user.email}</field>
+            <field name="email_to">${object.email}</field>
+            <field name="body_html" type="html">
+                <![CDATA[
+                <p>Dear ${object.employee_id.name},</p>
+                <p>Your request titled <strong>${object.name}</strong> has been <strong>${object.state.capitalize()}</strong>.</p>
+                <p><strong>Approved/Rejected by:</strong> ${object.approved_by.name if object.approved_by else 'N/A'}</p>
+                <p>Thank you.</p>
+                ]]>
+            </field>
+        </record>
+    </data>
+</odoo>

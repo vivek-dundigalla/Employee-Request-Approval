@@ -1,0 +1,443 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <!-- Paper Format -->
+    <record id="paperformat_employee_request" model="report.paperformat">
+        <field name="name">Request Letter</field>
+        <field name="default" eval="False"/>
+        <field name="format">A4</field>
+        <field name="margin_top">5</field>
+        <field name="margin_bottom">20</field>
+        <field name="margin_left">15</field>
+        <field name="margin_right">15</field>
+        <field name="header_spacing">10</field>
+        <field name="dpi">96</field>
+    </record>
+
+
+    <!-- Response for Leave Request -->
+
+    <record id="report_Leave_request_response" model="ir.actions.report">
+        <field name="name">Employee Request Response</field>
+        <field name="model">employee.request</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sdm_employee_request_approval.response_Leave_request_template</field>
+        <field name="report_file">sdm_employee_request_approval.response_Leave_request_template</field>
+        <field name="print_report_name">'Leave Request - %s' % (object.employee_id.name)</field>
+        <field name="paperformat_id" ref="paperformat_employee_request"/>
+    </record>
+
+    <!--    Response for Experience Certificate-->
+    <record id="report_experience_certificate_response" model="ir.actions.report">
+        <field name="name">Experience Certificate</field>
+        <field name="model">employee.request</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sdm_employee_request_approval.response_experience_certificate_template</field>
+        <field name="report_file">sdm_employee_request_approval.response_experience_certificate_template</field>
+        <field name="print_report_name">'Experience Certificate - %s' % (object.employee_id.name)</field>
+        <field name="paperformat_id" ref="paperformat_employee_request"/>
+    </record>
+
+    <!-- Response for Leave Request Rejection -->
+
+    <record id="report_leave_request_rejection" model="ir.actions.report">
+        <field name="name">Leave Request Rejection</field>
+        <field name="model">employee.request</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sdm_employee_request_approval.response_leave_request_rejection_template</field>
+        <field name="report_file">sdm_employee_request_approval.response_leave_request_rejection_template</field>
+        <field name="print_report_name">'Leave Request Rejection - %s' % (object.employee_id.name)</field>
+        <field name="paperformat_id" ref="paperformat_employee_request"/>
+    </record>
+
+
+    <!--Template for Leave Request Response-->
+    <template id="response_Leave_request_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+
+                    <!-- Logo -->
+                    <div style="text-align: left; margin-bottom: 10px;">
+                        <img t-if="res_company.logo"
+                             t-att-src="'data:image/png;base64,%s' % res_company.logo.decode('utf-8')"
+                             style="width: 150px; height: auto;"/>
+                    </div>
+
+                    <!-- Company Info and Place/Date -->
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 14px;">
+                        <div style="text-align: left;">
+                            <strong>
+                                <t t-esc="res_company.name"/>
+                            </strong>
+                            <br/>
+                            Tel:
+                            <t t-esc="res_company.phone or 'N/A'"/>
+                            <br/>
+                            Email:
+                            <t t-esc="res_company.email or 'N/A'"/>
+                            <br/>
+                            Address:
+                            <t t-esc="res_company.street or ''"/>
+                            <t t-if="res_company.street2">,
+                                <t t-esc="res_company.street2"/>
+                            </t>
+                            <t t-if="res_company.city">,
+                                <t t-esc="res_company.city"/>
+                            </t>
+                            <t t-if="res_company.state_id.name">,
+                                <t t-esc="res_company.state_id.name"/>
+                            </t>
+                            <t t-if="res_company.zip">,
+                                <t t-esc="res_company.zip"/>
+                            </t>
+                            <t t-if="res_company.country_id.name">,
+                                <t t-esc="res_company.country_id.name"/>
+                            </t>
+                            .
+                        </div>
+
+                        <div style="text-align: right; font-size: 12px;">
+                            <strong>Place:</strong>
+                            <t t-esc="res_company.city or 'N/A'"/>,
+                            <br/>
+                            <strong>Date:</strong>
+                            <t t-esc="docs.date.strftime('%d %B %Y') if docs.date else ''"/>
+                        </div>
+                    </div>
+
+                    <hr style="margin-top: 10px; margin-bottom: 10px;"/>
+
+                    <!-- Subject -->
+                    <h3 style="text-align: center; text-decoration: underline; margin-bottom: 30px;">
+                        Your Leave Request - Approved
+                    </h3>
+
+                    <h5 style="margin-top: 50px;margin-bottom: 5px;">
+                        Request Number:
+                        <span style="font-weight: normal;">
+                            <t t-esc="docs.name"/>
+                        </span>
+                    </h5>
+
+                    <!-- Letter Body -->
+                    <div style="font-size: 13px; margin-bottom: 20px; line-height: 1.7;">
+                        Dear
+                        <strong>
+                            <t t-esc="docs.employee_id.name or 'Employee Name'"/>
+                        </strong>
+                        ,
+                        <br/>
+                        <br/>
+
+                        This email confirms that your leave request for the following dates has been approved:
+                        <br/>
+                        <br/>
+
+                        <strong>Start Date:</strong>
+                        <t t-esc="docs.start_date or 'Start Date'"/>
+                        <br/>
+                        <strong>End Date:</strong>
+                        <t t-esc="docs.end_date or 'End Date'"/>
+                        <br/>
+                        <br/>
+
+                        We hope you have a restful and rejuvenating time off.
+                        <br/>
+                        <br/>
+
+                        Please ensure all your urgent tasks are completed or delegated before your leave begins.
+                    </div>
+
+                    <div style="font-size: 13px; margin-bottom: 30px;">
+                        Best regards,
+                        <br/>
+                        <br/>
+                        <strong>
+                            <t t-esc="docs.approved_by.name or 'HR Department'"/>
+                        </strong>
+                        <br/>
+                        <span>
+                            <t t-esc="docs.approved_by.employee_ids[0].job_id.name or 'HR Manager'"/>
+                        </span>
+                        <br/>
+                        <span>
+                            <t t-esc="res_company.name or 'Company Name'"/>
+                        </span>
+                    </div>
+
+                    <hr style="margin-top: 30px; margin-bottom: 10px;"/>
+
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <!--    template for Experience Certificate Response-->
+
+    <template id="response_experience_certificate_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+
+                    <!-- Logo -->
+                    <div style="text-align: left; margin-bottom: 10px;">
+                        <img t-if="res_company.logo"
+                             t-att-src="'data:image/png;base64,%s' % res_company.logo.decode('utf-8')"
+                             style="width: 150px; height: auto;"/>
+                    </div>
+
+                    <!-- Company Info and Place/Date -->
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 14px;">
+                        <div style="text-align: left;">
+                            <strong>
+                                <t t-esc="res_company.name"/>
+                            </strong>
+                            <br/>
+                            Tel:
+                            <t t-esc="res_company.phone or 'N/A'"/>
+                            <br/>
+                            Email:
+                            <t t-esc="res_company.email or 'N/A'"/>
+                            <br/>
+                            Address:
+                            <t t-esc="res_company.street or ''"/>
+                            <t t-if="res_company.street2">,
+                                <t t-esc="res_company.street2"/>
+                            </t>
+                            <t t-if="res_company.city">,
+                                <t t-esc="res_company.city"/>
+                            </t>
+                            <t t-if="res_company.state_id.name">,
+                                <t t-esc="res_company.state_id.name"/>
+                            </t>
+                            <t t-if="res_company.zip">,
+                                <t t-esc="res_company.zip"/>
+                            </t>
+                            <t t-if="res_company.country_id.name">,
+                                <t t-esc="res_company.country_id.name"/>
+                            </t>
+                            .
+                        </div>
+
+                        <div style="text-align: right; font-size: 12px;">
+                            <strong>Place:</strong>
+                            <t t-esc="res_company.city or 'N/A'"/>,
+                            <br/>
+                            <strong>Date:</strong>
+                            <t t-esc="docs.date.strftime('%d %B %Y') if docs.date else ''"/>
+                        </div>
+                    </div>
+
+                    <hr style="margin-top: 10px; margin-bottom: 10px;"/>
+
+                    <!-- Title -->
+                    <h3 style="text-align: center; text-decoration: underline; margin-top: 10px;margin-bottom: 20px;">
+                        Experience Certificate
+                    </h3>
+
+                    <h5 style="margin-top: 50px;margin-bottom: 5px;">
+                        Request Number:
+                        <span style="font-weight: normal;">
+                            <t t-esc="docs.name"/>
+                        </span>
+                    </h5>
+
+                    <div style="text-align: center; text-decoration: underline; margin-top: 40px;margin-bottom: 50px;">
+                        Subject:
+                        <span style="font-weight: bold;">Experience Certificate Issued</span>
+                    </div>
+
+                    <!-- Letter Body -->
+                    <div style="font-size: 13px; margin-bottom: 20px; line-height: 1.7;">
+                        To Whomsoever It May Concern,
+                        <br/>
+                        <br/>
+                        This is to certify that
+                        <strong>
+                            <t t-esc="docs.employee_id.name or 'Employee Name'"/>
+                        </strong>
+                        was employed with
+                        <strong>
+                            <t t-esc="res_company.name or 'Company Name'"/>
+                        </strong>
+                        as a
+                        <strong>
+                            <t t-esc="docs.role or 'Designation'"/>
+                        </strong>
+                        .
+                        <br/>
+                        <br/>
+                        During their tenure with us, from
+                        <strong>
+                            <t t-esc="docs.total_experience or 'N/A'"/>
+                        </strong>
+                        <!--                        <strong>-->
+                        <!--                            <t t-esc="format_date(doc.env, docs.start_date) if docs.start_date else 'Start Date'"/>-->
+                        <!--                        </strong>-->
+                        <!--                        to-->
+                        <!--                        <strong>-->
+                        <!--                            <t t-esc="format_date(doc.env, docs.end_date) if docs.end_date else 'End Date'"/>-->
+                        <!--                        </strong>-->
+
+                        ,
+                        they have exhibited excellent conduct and dedication towards their responsibilities.
+                        <br/>
+                        <br/>
+                        We wish them success in all their future endeavors.
+                    </div>
+
+                    <div style="font-size: 13px; margin-bottom: 30px;">
+                        Issued upon the request of the employee for
+                        <strong>
+                            <t t-esc="docs.reason or 'career prospects'"/>
+                        </strong>
+                        .
+                    </div>
+
+                    <!-- Signature -->
+                    <div style="font-size: 13px;">
+                        Sincerely,
+                        <br/>
+                        <br/>
+                        <strong>
+                            <t t-esc="docs.approved_by.name or 'HR Manager'"/>
+                        </strong>
+                        <br/>
+                        <t t-esc="docs.approved_by.employee_ids[0].job_id.name or 'HR Manager'"/>
+                        <br/>
+                        <t t-esc="res_company.name or 'Company Name'"/>
+                    </div>
+
+                    <hr style="margin-top: 30px; margin-bottom: 10px;"/>
+
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <!--    template for Leave Request Rejection-->
+    <template id="response_leave_request_rejection_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+
+                    <!-- Logo -->
+                    <div style="text-align: left; margin-bottom: 10px;">
+                        <img t-if="res_company.logo"
+                             t-att-src="'data:image/png;base64,%s' % res_company.logo.decode('utf-8')"
+                             style="width: 150px; height: auto;"/>
+                    </div>
+
+                    <!-- Company Info and Place/Date -->
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 14px;">
+                        <div style="text-align: left;">
+                            <strong>
+                                <t t-esc="res_company.name"/>
+                            </strong>
+                            <br/>
+                            Tel:
+                            <t t-esc="res_company.phone or 'N/A'"/>
+                            <br/>
+                            Email:
+                            <t t-esc="res_company.email or 'N/A'"/>
+                            <br/>
+                            Address:
+                            <t t-esc="res_company.street or ''"/>
+                            <t t-if="res_company.street2">,
+                                <t t-esc="res_company.street2"/>
+                            </t>
+                            <t t-if="res_company.city">,
+                                <t t-esc="res_company.city"/>
+                            </t>
+                            <t t-if="res_company.state_id.name">,
+                                <t t-esc="res_company.state_id.name"/>
+                            </t>
+                            <t t-if="res_company.zip">,
+                                <t t-esc="res_company.zip"/>
+                            </t>
+                            <t t-if="res_company.country_id.name">,
+                                <t t-esc="res_company.country_id.name"/>
+                            </t>
+                            .
+                        </div>
+
+                        <div style="text-align: right; font-size: 12px;">
+                            <strong>Place:</strong>
+                            <t t-esc="res_company.city or 'N/A'"/>,
+                            <br/>
+                            <strong>Date:</strong>
+                            <t t-esc="docs.date.strftime('%d %B %Y') if docs.date else ''"/>
+                        </div>
+                    </div>
+
+                    <hr style="margin-top: 10px; margin-bottom: 10px;"/>
+
+                    <!-- Title -->
+                    <h3 style="text-align: center; text-decoration: underline; margin-bottom: 20px;">
+                        Leave Request Rejection
+                    </h3>
+
+                    <!-- Reference Info -->
+                    <h5 style="margin-top: 50px; margin-bottom: 5px;">
+                        Request Number:
+                        <span style="font-weight: normal;">
+                            <t t-esc="docs.name"/>
+                        </span>
+                    </h5>
+
+                    <!-- Letter Body -->
+                    <div style="font-size: 13px; margin-top: 40px; margin-bottom: 50px; line-height: 1.7;">
+                        Dear
+                        <strong>
+                            <t t-esc="docs.employee_id.name or 'Employee Name'"/>
+                        </strong>
+                        ,
+                        <br/>
+                        <br/>
+                        We regret to inform you that your request for leave from
+                        <strong>
+                            <t t-esc="docs.start_date or 'Start Date'"/>
+                        </strong>
+                        to
+                        <strong>
+                            <t t-esc="docs.end_date or 'End Date'"/>
+                        </strong>
+                        has been <strong>rejected</strong>.
+                        <br/>
+                        <br/>
+                        Reason for rejection:
+                        <strong>
+                            critical project deadlines / staffing limitations / business operational needs
+                        </strong>
+                        <br/>
+                        <br/>
+                        We understand this may be disappointing, but we encourage you to reach out to your manager or HR
+                        department should you need further clarification or assistance.
+                        <br/>
+                        <br/>
+                        Thank you for your understanding.
+                    </div>
+
+                    <!-- Signature -->
+                    <div style="font-size: 13px;">
+                        Yours sincerely,
+                        <br/>
+                        <br/>
+                        <strong>
+                            <t t-esc="docs.approved_by.name or 'HR Manager'"/>
+                        </strong>
+                        <br/>
+                        <t t-esc="docs.approved_by.employee_ids[0].job_id.name or 'HR Department'"/>
+                        <br/>
+                        <t t-esc="res_company.name or 'Company Name'"/>
+                    </div>
+
+                    <hr style="margin-top: 30px; margin-bottom: 10px;"/>
+
+                </div>
+            </t>
+        </t>
+    </template>
+
+
+</odoo>
