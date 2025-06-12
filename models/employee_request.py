@@ -22,6 +22,7 @@ class EmployeeRequest(models.Model):
         ('experience_certificate', 'Experience Certificate'),
         ('leave_request', 'Leave Request'),
         ('relieving_letter', 'Relieving Letter'),
+        ('increment_request', 'Increment Request'),
     ]
 
     request_type = fields.Selection(
@@ -47,7 +48,7 @@ class EmployeeRequest(models.Model):
 
     date = fields.Date(string="Date", default=fields.Date.context_today, tracking=True)
 
-    joining_date = fields.Date(string="Joining Date", compute="_compute_joining_date")
+    joining_date = fields.Date(string="Joining Date", compute="_compute_joining_date",store=True)
 
     reason = fields.Char(string="Reason")
 
@@ -67,12 +68,16 @@ class EmployeeRequest(models.Model):
             )
             rec.joining_date = resume_lines.date_start if resume_lines else None
 
+
+
     @api.onchange('resignation_date')
     def _compute_last_working_day(self):
         notice_period_days = 30  # Example: 30 days notice
         for rec in self:
             if rec.resignation_date:
                 rec.last_working_day = rec.resignation_date + relativedelta(days=notice_period_days)
+            else:
+                rec.last_working_day = None
 
     def _get_experience_details(self, employee):
         from dateutil.relativedelta import relativedelta
@@ -172,7 +177,8 @@ class EmployeeRequest(models.Model):
             return self.env.ref('sdm_employee_request_approval.report_leave_request').report_action(self)
         elif self.request_type == 'relieving_letter':
             return self.env.ref('sdm_employee_request_approval.report_relieving_letter').report_action(self)
-
+        elif self.request_type == 'increment_request':
+            return self.env.ref('sdm_employee_request_approval.report_increment_request').report_action(self)
 
     def action_print_report_response(self):
         self.ensure_one()
@@ -185,6 +191,11 @@ class EmployeeRequest(models.Model):
                 return self.env.ref('sdm_employee_request_approval.report_Leave_request_response').report_action(self)
         elif self.request_type == 'relieving_letter':
             return self.env.ref('sdm_employee_request_approval.report_relieving_letter_response').report_action(self)
+        elif self.request_type == 'increment_request':
+            if self.state == 'rejected':
+                return self.env.ref('sdm_employee_request_approval.report_increment_rejection').report_action(self)
+            else:
+                return self.env.ref('sdm_employee_request_approval.report_increment_request_response').report_action(self)
 
 
 

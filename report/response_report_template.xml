@@ -60,6 +60,28 @@
         <field name="paperformat_id" ref="paperformat_employee_request"/>
     </record>
 
+    <!-- Response for Increment Request -->
+    <record id="report_increment_request_response" model="ir.actions.report">
+        <field name="name">Increment Response</field>
+        <field name="model">employee.request</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sdm_employee_request_approval.report_increment_response_template</field>
+        <field name="report_file">sdm_employee_request_approval.report_increment_response_template</field>
+        <field name="print_report_name">'Increment Response - %s' % (object.employee_id.name)</field>
+        <field name="paperformat_id" ref="paperformat_employee_request"/>
+    </record>
+
+    <!-- Response for Increment Request Rejection -->
+    <record id="report_increment_rejection" model="ir.actions.report">
+        <field name="name">Increment Rejection</field>
+        <field name="model">employee.request</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">sdm_employee_request_approval.report_increment_rejection_template</field>
+        <field name="report_file">sdm_employee_request_approval.report_increment_rejection_template</field>
+        <field name="print_report_name">'Increment Rejection - %s' % (object.employee_id.name)</field>
+        <field name="paperformat_id" ref="paperformat_employee_request"/>
+    </record>
+
 
     <!--Template for Leave Request Response-->
     <template id="response_Leave_request_template">
@@ -450,6 +472,8 @@
         </t>
     </template>
 
+    <!-- Template for Relieving Letter Response -->
+
     <template id="report_relieving_letter_response_template">
         <t t-call="web.html_container">
             <t t-call="web.external_layout">
@@ -577,6 +601,291 @@
                         <t t-esc="res_company.name or 'Company Name'"/>
                         <br/>
                     </div>
+
+                </div>
+            </t>
+        </t>
+    </template>
+
+    <!-- Template for Increment Request Response -->
+    <template id="report_increment_response_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+
+                    <!-- Logo -->
+                    <div style="text-align: left; margin-bottom: 10px;">
+                        <img t-if="res_company.logo"
+                             t-att-src="'data:image/png;base64,%s' % res_company.logo.decode('utf-8')"
+                             style="width: 150px; height: auto;"/>
+                    </div>
+
+                    <!-- Company Info and Place/Date -->
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 14px;">
+                        <div style="text-align: left;">
+                            <strong>
+                                <t t-esc="res_company.name"/>
+                            </strong>
+                            <br/>
+                            Tel:
+                            <t t-esc="res_company.phone or 'N/A'"/>
+                            <br/>
+                            Email:
+                            <t t-esc="res_company.email or 'N/A'"/>
+                            <br/>
+                            Address:
+                            <t t-esc="res_company.street or ''"/>
+                            <t t-if="res_company.street2">,
+                                <t t-esc="res_company.street2"/>
+                            </t>
+                            <t t-if="res_company.city">,
+                                <t t-esc="res_company.city"/>
+                            </t>
+                            <t t-if="res_company.state_id.name">,
+                                <t t-esc="res_company.state_id.name"/>
+                            </t>
+                            <t t-if="res_company.zip">,
+                                <t t-esc="res_company.zip"/>
+                            </t>
+                            <t t-if="res_company.country_id.name">,
+                                <t t-esc="res_company.country_id.name"/>
+                            </t>
+                            .
+                        </div>
+
+                        <div style="text-align: right; font-size: 12px;">
+                            <strong>Place:</strong>
+                            <t t-esc="res_company.city or 'N/A'"/>,
+                            <br/>
+                            <strong>Date:</strong>
+                            <t t-esc="docs.date.strftime('%d %B %Y') if docs.date else ''"/>
+                        </div>
+                    </div>
+
+                    <hr style="margin-top: 10px; margin-bottom: 10px;"/>
+
+                    <!-- Title -->
+                    <h3 style="text-align: center; text-decoration: underline; margin-top: 10px; margin-bottom: 20px;">
+                        Response to Salary Increment Request
+                    </h3>
+
+                    <!-- Request Reference -->
+                    <h5 style="margin-top: 30px; margin-bottom: 5px;">
+                        Request Number:
+                        <span style="font-weight: normal;">
+                            <t t-esc="docs.name"/>
+                        </span>
+                    </h5>
+
+                    <!-- Subject -->
+                    <div style="text-align: center; text-decoration: underline; margin-top: 30px; margin-bottom: 30px;">
+                        Subject:
+                        <span style="font-weight: bold;">Response to Increment Request</span>
+                    </div>
+
+                    <!-- Letter Body -->
+                    <div style="font-size: 13px; line-height: 1.7;">
+                        Dear
+                        <strong>
+                            <t t-esc="docs.employee_id.name or 'Employee Name'"/>
+                        </strong>
+                        ,
+                        <br/>
+                        <br/>
+                        This is in reference to your salary increment request submitted on
+                        <strong>
+                            <t t-esc="docs.date.strftime('%d %B %Y') if docs.date else ''"/>
+                        </strong>
+                        .
+                        <br/>
+                        <br/>
+                        We appreciate your contributions to
+                        <strong>
+                            <t t-esc="res_company.name"/>
+                        </strong>
+                        and recognize your hard work and dedication.
+                        After careful review of your performance, responsibilities, and current market standards, we
+                        would like to inform you that:
+                        <br/>
+                        <br/>
+
+                        <!-- Response Decision Area -->
+                        <div style="font-weight: bold; margin-left: 20px; margin-bottom: 20px;">
+                            <!-- You can dynamically control this content via a field like docs.response_status or similar -->
+                            <t t-if="docs.state == 'approved'">
+                                Your request for a salary increment has been <u>APPROVED</u>.
+                            </t>
+                            <t t-if="docs.state == 'rejected'">
+                                Your request for a salary increment has been <u>REJECTED</u> at this time.
+                            </t>
+                            <t t-if="docs.state not in ['approved', 'rejected']">
+                                Your request is currently <u>UNDER REVIEW</u>. You will be informed of the final
+                                decision shortly.
+                            </t>
+                        </div>
+
+                        <t t-if="docs.state == 'approved'">
+                            <div>
+                                The details of your revised compensation will be communicated to you separately through
+                                HR.
+                            </div>
+                        </t>
+
+                        <br/>
+                        Thank you once again for your continuous efforts and commitment.
+                        <br/>
+                        <br/>
+                        Yours sincerely,
+                        <br/>
+                        <br/>
+                        <strong>
+                            <t t-esc="docs.approved_by.name or 'Approver Name'"/>
+                        </strong>
+                        <br/>
+                        <span>
+                            <t t-esc="docs.approved_by.employee_ids[0].job_id.name or 'HR Manager'"/>
+                        </span>
+                        <br/>
+                        <span>
+                            <t t-esc="docs.approved_by.work_email or 'Email'"/>
+                        </span>
+                    </div>
+
+                    <hr style="margin-top: 30px; margin-bottom: 10px;"/>
+
+                </div>
+            </t>
+        </t>
+    </template>
+
+
+    <!-- Template for Increment Request Rejection -->
+    <template id="report_increment_rejection_template">
+        <t t-call="web.html_container">
+            <t t-call="web.external_layout">
+                <div class="page">
+
+                    <!-- Logo -->
+                    <div style="text-align: left; margin-bottom: 10px;">
+                        <img t-if="res_company.logo"
+                             t-att-src="'data:image/png;base64,%s' % res_company.logo.decode('utf-8')"
+                             style="width: 150px; height: auto;"/>
+                    </div>
+
+                    <!-- Company Info and Place/Date -->
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 20px; font-size: 14px;">
+                        <div style="text-align: left;">
+                            <strong>
+                                <t t-esc="res_company.name"/>
+                            </strong>
+                            <br/>
+                            Tel:
+                            <t t-esc="res_company.phone or 'N/A'"/>
+                            <br/>
+                            Email:
+                            <t t-esc="res_company.email or 'N/A'"/>
+                            <br/>
+                            Address:
+                            <t t-esc="res_company.street or ''"/>
+                            <t t-if="res_company.street2">,
+                                <t t-esc="res_company.street2"/>
+                            </t>
+                            <t t-if="res_company.city">,
+                                <t t-esc="res_company.city"/>
+                            </t>
+                            <t t-if="res_company.state_id.name">,
+                                <t t-esc="res_company.state_id.name"/>
+                            </t>
+                            <t t-if="res_company.zip">,
+                                <t t-esc="res_company.zip"/>
+                            </t>
+                            <t t-if="res_company.country_id.name">,
+                                <t t-esc="res_company.country_id.name"/>
+                            </t>
+                            .
+                        </div>
+
+                        <div style="text-align: right; font-size: 12px;">
+                            <strong>Place:</strong>
+                            <t t-esc="res_company.city or 'N/A'"/>,
+                            <br/>
+                            <strong>Date:</strong>
+                            <t t-esc="docs.date.strftime('%d %B %Y') if docs.date else ''"/>
+                        </div>
+                    </div>
+
+                    <hr style="margin-top: 10px; margin-bottom: 10px;"/>
+
+                    <!-- Title -->
+                    <h3 style="text-align: center; text-decoration: underline; margin-top: 10px; margin-bottom: 20px;">
+                        Rejection of Salary Increment Request
+                    </h3>
+
+                    <!-- Request Reference -->
+                    <h5 style="margin-top: 30px; margin-bottom: 5px;">
+                        Request Number:
+                        <span style="font-weight: normal;">
+                            <t t-esc="docs.name"/>
+                        </span>
+                    </h5>
+
+                    <!-- Subject -->
+                    <div style="text-align: center; text-decoration: underline; margin-top: 30px; margin-bottom: 30px;">
+                        Subject:
+                        <span style="font-weight: bold;">Increment Request Rejection</span>
+                    </div>
+
+                    <!-- Letter Body -->
+                    <div style="font-size: 13px; line-height: 1.7;">
+                        Dear
+                        <strong>
+                            <t t-esc="docs.employee_id.name or 'Employee Name'"/>
+                        </strong>
+                        ,
+                        <br/>
+                        <br/>
+                        Thank you for your recent request for a salary increment submitted on
+                        <strong>
+                            <t t-esc="docs.date.strftime('%d %B %Y') if docs.date else ''"/>
+                        </strong>
+                        .
+                        <br/>
+                        <br/>
+                        After careful consideration of your request, we regret to inform you that at this time, we are
+                        unable to approve your request for a salary increment.
+                        <br/>
+                        <br/>
+                        Please note that this decision is based on various organizational and business factors. This
+                        decision does not reflect on your contributions, which we truly appreciate.
+                        <br/>
+                        <br/>
+                        We encourage you to continue your valuable contributions, and we will certainly reconsider your
+                        request during the next review cycle based on future evaluations and company circumstances.
+                        <br/>
+                        <br/>
+                        If you have any questions or wish to discuss this further, please feel free to reach out.
+                        <br/>
+                        <br/>
+                        We appreciate your continued efforts and dedication.
+                        <br/>
+                        <br/>
+                        Yours sincerely,
+                        <br/>
+                        <br/>
+                        <strong>
+                            <t t-esc="docs.approved_by.name or 'Approver Name'"/>
+                        </strong>
+                        <br/>
+                        <span>
+                            <t t-esc="docs.approved_by.employee_ids[0].job_id.name or 'HR Manager'"/>
+                        </span>
+                        <br/>
+                        <span>
+                            <t t-esc="docs.approved_by.work_email or 'Email'"/>
+                        </span>
+                    </div>
+
+                    <hr style="margin-top: 30px; margin-bottom: 10px;"/>
 
                 </div>
             </t>
